@@ -1,0 +1,33 @@
+{# ყველა გვერდის საერთო ჩარჩო: მენიუ, შეტყობინებები, ძირითადი შიგთავსი და footer. #}
+{% load static %}<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}სუფრა — ონლაინ რესტორანი{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'menu/style.css' %}">
+</head>
+<body>
+<header>
+<a class="brand" href="{% url 'menu:catalog' %}">
+<span class="brand-icon">ს</span> სუფრა<span class="brand-caption">ASIAN KITCHEN</span>
+</a>
+{# ნავიგაციის ბმულები მისამართებს Django-ს url ტეგით იღებს. #}
+<nav aria-label="მთავარი ნავიგაცია">
+<a href="{% url 'menu:catalog' %}">მენიუ</a>
+<a class="cart-link" href="{% url 'menu:cart' %}">კალათა  ↗</a>{% if user.is_authenticated %}<span class="user-greeting">გამარჯობა, {{ user.first_name|default:user.username }}</span>
+{# POST ფორმა სერვერს ცვლილების მოთხოვნას უგზავნის. csrf_token იცავს უცხო საიტიდან გაყალბებული მოთხოვნისგან. #}
+<form method="post" action="{% url 'menu:logout' %}">{% csrf_token %}<button class="nav-signout">გასვლა</button>
+</form>{% else %}<a href="{% url 'menu:login' %}">შესვლა</a>
+<a class="button nav-register" href="{% url 'menu:register' %}">რეგისტრაცია</a>{% endif %}
+</nav>
+</header>
+{# messages შეიცავს წინა მოქმედების წარმატების ან შეცდომის შეტყობინებებს. #}
+<main>{% for message in messages %}<div class="notice" role="status">{{ message }}</div>{% endfor %}
+{% block content %}{% endblock %}</main>
+<footer>
+<strong>სუფრა.</strong>
+<span>სასწავლო პროექტი · Python / Django · IT Step API</span>
+</footer>
+</body>
+</html>

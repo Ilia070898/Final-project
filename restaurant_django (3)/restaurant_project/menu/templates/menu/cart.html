@@ -1,0 +1,58 @@
+{% extends 'menu/base.html' %}
+{# კალათა. rows არის კერძების სია, total — ჯამი, count — პორციები. #}
+{% block title %}კალათა — სუფრა{% endblock %}{% block content %}<div class="section-heading cart-heading">
+<div>
+<span class="eyebrow">შენი არჩევანი</span>
+<h1>შეკვეთის კალათა</h1>
+</div>
+<a href="{% url 'menu:catalog' %}">← მენიუში დაბრუნება</a>
+</div>
+<p class="notice">სასწავლო API: კალათა შესაძლოა საერთო იყოს სხვა მომხმარებლებთან. რეალური გადახდა და შეკვეთის გაგზავნა არ ხდება.</p>
+{% if error %}<div class="notice" role="alert">{{ error }} <a href="">ხელახლა ცდა</a>
+</div>{% else %}<div id="cart-content" {% if not rows %}hidden{% endif %}
+>
+<div class="cart-layout">
+<section class="cart-items" aria-label="არჩეული კერძები">{# ციკლი კალათის თითოეული ჩანაწერისთვის აჩვენებს კერძს, რაოდენობას და თანხას. #}
+{% for row in rows %}<article class="cart-row">
+<img src="{{ row.product.image }}" alt="{{ row.product.name }}">
+<div class="cart-name">
+<h3>{{ row.product.name }}</h3>
+<span>{{ row.product.price|floatformat:2 }} ₾ / პორცია</span>
+</div>
+{# POST ფორმა სერვერს ცვლილების მოთხოვნას უგზავნის. csrf_token იცავს უცხო საიტიდან გაყალბებული მოთხოვნისგან. #}
+<form method="post" action="{% url 'menu:update' row.product.id %}" class="quantity-form">{% csrf_token %}<label class="sr-only" for="quantity-{{ row.product.id }}">რაოდენობა: {{ row.product.name }}</label>
+{# name=quantity ზუსტად ის სახელია, რომელსაც QuantityForm იღებს. #}
+<input id="quantity-{{ row.product.id }}" name="quantity" type="number" min="1" max="99" required value="{{ row.quantity }}">
+<button type="submit" class="small">შეცვლა</button>
+</form>
+<strong class="subtotal">{{ row.subtotal|floatformat:2 }} ₾</strong>
+{# POST ფორმა სერვერს ცვლილების მოთხოვნას უგზავნის. csrf_token იცავს უცხო საიტიდან გაყალბებული მოთხოვნისგან. #}
+<form method="post" action="{% url 'menu:remove' row.product.id %}">{% csrf_token %}<button class="remove" aria-label="წაშლა: {{ row.product.name }}">წაშლა</button>
+</form>
+</article>{% endfor %}
+</section>
+<aside class="summary">
+<span class="eyebrow">შეკვეთის შეჯამება</span>
+<h2>შენი სუფრა</h2>
+<div>
+<span>პორციები</span>
+<strong id="cart-count">{{ count }}</strong>
+</div>
+{# თანხა Python-მა დაითვალა; floatformat:2 აქ მხოლოდ ჩვენების ფორმატს ცვლის. #}
+<div class="grand-total">
+<span>სულ</span>
+<strong id="cart-total">{{ total|floatformat:2 }} ₾</strong>
+</div>
+<p>შეიყვანე რაოდენობა და დააჭირე „შეცვლას“ — გვერდი განახლდება და ახალი ჯამი გამოჩნდება.</p>
+<a class="button" href="{% url 'menu:catalog' %}">კერძის დამატება +</a>
+</aside>
+</div>
+</div>
+<section id="empty-cart" class="empty" {% if rows %}hidden{% endif %}
+>
+<span class="empty-icon">⌑</span>
+<h2>შენი კალათა ჯერ ცარიელია</h2>
+<p>გემრიელი არჩევანი მენიუში გელოდება.</p>
+<a class="button" href="{% url 'menu:catalog' %}">მენიუს ნახვა →</a>
+</section>{% endif %}
+{% endblock %}

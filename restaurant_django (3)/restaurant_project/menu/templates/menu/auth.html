@@ -1,0 +1,45 @@
+{% extends 'menu/base.html' %}
+{# ერთი შაბლონი რეგისტრაციისა და შესვლისთვის; registering არჩევს ტექსტებს. #}
+
+{% block title %}{% if registering %}რეგისტრაცია{% else %}შესვლა{% endif %}
+ — სუფრა{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <aside class="auth-story">
+<span class="eyebrow">სუფრა • ASIAN KITCHEN</span>
+<h1>კარგი გემო<br>აქ იწყება.</h1>
+<p>შემოიერთდი ჩვენს სუფრას.<br>აღმოაჩინე შენი საყვარელი გემოები.</p>
+<div class="auth-decoration" aria-hidden="true">
+<span>ს</span>
+<i>ერთი სუფრა.<br>ბევრი გემო.</i>
+</div>
+<span class="auth-story-note">ახალი დღე. ახალი გემოები.</span>
+</aside>
+  <div class="auth-panel">
+<a class="auth-back" href="{% url 'menu:catalog' %}">← მენიუში დაბრუნება</a>
+<span class="eyebrow">{% if registering %}კეთილი იყოს შენი მობრძანება{% else %}მოხარული ვართ, რომ დაბრუნდი{% endif %}
+</span>
+<h2>{% if registering %}შექმენი ანგარიში{% else %}შედი ანგარიშში{% endif %}
+</h2>
+<p class="auth-intro">{% if registering %}შეავსე მონაცემები და შემოგვიერთდი.{% else %}შეიყვანე მომხმარებლის სახელი და პაროლი.{% endif %}
+</p>
+  {# POST ფორმა სერვერს ცვლილების მოთხოვნას უგზავნის. csrf_token იცავს უცხო საიტიდან გაყალბებული მოთხოვნისგან. #}
+<form method="post" class="auth-form">{% csrf_token %}
+    {% if form.errors %}<div class="auth-errors" role="alert">
+<strong>შეამოწმე შეყვანილი მონაცემები.</strong>{{ form.non_field_errors }}</div>{% endif %}
+
+    {# Django-ს ფორმის თითოეულ ველს ახლავს წარწერა და ვალიდაციის შეცდომები. #}
+{% for field in form %}<div class="auth-field">
+<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<div class="helptext" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</div>{% endif %}
+{{ field.errors }}</div>{% endfor %}
+
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+    <button type="submit" class="auth-submit">{% if registering %}ანგარიშის შექმნა{% else %}შესვლა{% endif %}
+ →</button>
+  </form>
+<p class="auth-switch">{% if registering %}უკვე გაქვს ანგარიში? <a href="{% url 'menu:login' %}">შესვლა</a>{% else %}ჯერ არ გაქვს ანგარიში? <a href="{% url 'menu:register' %}">რეგისტრაცია</a>{% endif %}
+</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'menu/base.html' %}
+{# კერძების გვერდი. Python-ის context გვაწვდის products, form და error მნიშვნელობებს. #}
+{% block content %}
+{# მთავარი ვიზუალური ბლოკი. კლასების დიზაინი style.css-შია. #}
+<section class="hero">
+<div>
+<span class="eyebrow">ახალი გემოები • შენი არჩევანი</span>
+<h1>კარგი გემო.<br>
+<em>შენს რიტმში.</em>
+</h1>
+<p>აღმოაჩინე აზიური სამზარეულო და შეარჩიე<br>შენთვის საყვარელი კერძები.</p>
+<a href="#menu" class="button">დაათვალიერე მენიუ ↓</a>
+</div>
+<div class="hero-art" aria-hidden="true">
+<div class="plate">
+<span>🥗</span>
+</div>
+<span class="art-note">მეტი ფერი.<br>მეტი გემო.</span>
+</div>
+</section>
+<section id="menu">
+<div class="section-heading">
+<div>
+<span class="eyebrow">შეარჩიე შენი ფავორიტი</span>
+<h2>ჩვენი მენიუ</h2>
+</div>
+<span class="muted">{{ products|length }} კერძი</span>
+</div>
+<div class="menu-layout">
+<aside>
+{# GET ფილტრები URL-ში გადადის; მონაცემებს არ ცვლის. #}
+<form method="get" class="filters">
+<h3>ფილტრი</h3>{# Django-ს ფორმის თითოეულ ველს ახლავს წარწერა და ვალიდაციის შეცდომები. #}
+{% for field in form %}<div class="field">
+<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}</div>{% endfor %}
+<button type="submit">გაფილტვრა</button>
+<a class="reset" href="{% url 'menu:catalog' %}">გასუფთავება</a>
+</form>
+</aside>
+<div>{% if error %}<div class="notice" role="alert">{{ error }} <a href="">ხელახლა ცდა</a>
+</div>{% elif form.errors %}<div class="notice" role="alert">შეამოწმეთ ფილტრის მნიშვნელობები.</div>{% else %}<div class="product-grid">{# for თითოეულ კერძზე ერთ ქარდს ქმნის. empty ამუშავებს ცარიელ სიას. #}
+{% for product in products %}<article class="product-card">
+{# image და name არის API-დან მიღებული კერძის მონაცემები; alt სურათის ტექსტური აღწერაა. #}
+<div class="product-image">
+<img src="{{ product.image }}" alt="{{ product.name }}" loading="lazy" referrerpolicy="no-referrer">
+</div>
+<div class="product-body">
+<div class="spice">სიცხარე <strong>{{ product.spiciness }} / 4</strong>
+</div>
+<h3>{{ product.name }}</h3>
+{# if ამოწმებს თხილეულისა და ვეგეტარიანულობის boolean მნიშვნელობებს. #}
+<div class="tags">
+<span>{% if product.nuts %}თხილეულით{% else %}თხილეულის გარეშე{% endif %}
+</span>
+<span class="{% if product.vegeterian %}green{% endif %}
+">{% if product.vegeterian %}ვეგეტარიანული{% else %}არავეგეტარიანული{% endif %}
+</span>
+</div>
+<div class="card-bottom">
+<strong class="price">{{ product.price|floatformat:2 }} ₾</strong>
+{# POST ფორმა სერვერს ცვლილების მოთხოვნას უგზავნის. csrf_token იცავს უცხო საიტიდან გაყალბებული მოთხოვნისგან. #}
+<form method="post" action="{% url 'menu:add' product.id %}">{% csrf_token %}<button aria-label="კალათაში დამატება: {{ product.name }}">+ დამატება</button>
+</form>
+</div>
+</div>
+</article>{% empty %}<div class="empty">
+<h3>კერძი ვერ მოიძებნა</h3>
+<p>სცადე სხვა ფილტრების კომბინაცია.</p>
+<a href="{% url 'menu:catalog' %}">ყველა კერძი →</a>
+</div>{% endfor %}
+</div>{% endif %}
+</div>
+</div>
+</section>
+{% endblock %}

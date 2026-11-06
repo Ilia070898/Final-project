@@ -1,0 +1,2 @@
+# Django-ს ვერსიის დიაპაზონი; pip install -r requirements.txt აყენებს მას.
+Django>=5.2,<5.3
